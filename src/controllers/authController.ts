@@ -13,14 +13,17 @@ export const register = async (req: Request, res: Response) => {
     let {userName, name, email, password} = req.body;
 
     const saltRounds = 10;
-    const salt = bcrypt.genSaltSync(saltRounds);
-    const hash = bcrypt.hashSync(password, salt);
+    bcrypt.hash(password, saltRounds, async function(err, hash) {
+        
+        password = hash;
+        let newUser =  await User.create({ userName, name, email, password});
 
-    password = hash;
+        res.status(201).json({id: newUser.id ,userName, name, email, password});
+    });
     
-    let newUser = await User.create({ userName, name, email, password});
+    
 
-    res.json({id: newUser.id,userName, name, email, password});
+    
 };
 
 export const login = (req: Request, res: Response) => {
